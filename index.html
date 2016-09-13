@@ -600,6 +600,144 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/04/23/mongoDB/" itemprop="url">
+                  mongoDB副本集与分片
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-04-23T20:21:29+08:00" content="2016-04-23">
+              2016-04-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/mongoDB/" itemprop="url" rel="index">
+                    <span itemprop="name">mongoDB</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/23/mongoDB/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/23/mongoDB/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="mongoDB主从复制"><a href="#mongoDB主从复制" class="headerlink" title="mongoDB主从复制"></a>mongoDB主从复制</h1><p>主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.<br>最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.<br>这里我们用一主一从实现mongodb的复制</p>
+<p>网易蜂巢的容器已经安装好了mongoDB,直接就可以运行mongo Client,我们要创建自己的mongod实例,<br>首先把容器自行运行的先停止<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --shutdown</div></pre></td></tr></table></figure></p>
+<h2 id="创建master实例"><a href="#创建master实例" class="headerlink" title="创建master实例"></a>创建master实例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --master --port=27081 --dbpath=/data/masterdb --logpath=/data/masterlog --fork</div></pre></td></tr></table></figure>
+<h2 id="创建-slave实例"><a href="#创建-slave实例" class="headerlink" title="创建 slave实例"></a>创建 slave实例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --slave  --port=27083 --dbpath=/data/slavedb --logpath=/data/slavelog   --source=27081    --fork</div></pre></td></tr></table></figure>
+<h2 id="查看mongo进程"><a href="#查看mongo进程" class="headerlink" title="查看mongo进程"></a>查看mongo进程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">root@mongodb-671984-3837ac52-ky93c:~<span class="comment"># ps -ef|grep mongod</span></div><div class="line">root       116     1  0 13:09 ?        00:00:05 mongod --master --port=27081 --dbpath=/data/masterdb --logpath=/data/masterlog --fork</div><div class="line">root       173     1  0 13:20 ?        00:00:01 mongod --slave --port=27083 --dbpath=/data/slavedb --logpath=/data/slavelog --source=27081 --fork</div><div class="line">root       279    64  0 13:24 pts/0    00:00:00 grep mongod</div></pre></td></tr></table></figure>
+<h2 id="测试-master-slave"><a href="#测试-master-slave" class="headerlink" title="测试 master,slave"></a>测试 master,slave</h2><p>连接master<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongo --port 27081</div></pre></td></tr></table></figure></p>
+<p>在mongo client 执行下列命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&gt; rs.<span class="function"><span class="title">isMaster</span></span>()</div><div class="line">&#123;</div><div class="line">	<span class="string">"ismaster"</span> : <span class="literal">true</span>,</div><div class="line">	<span class="string">"maxBsonObjectSize"</span> : 16777216,</div><div class="line">	<span class="string">"maxMessageSizeBytes"</span> : 48000000,</div><div class="line">	<span class="string">"maxWriteBatchSize"</span> : 1000,</div><div class="line">	<span class="string">"localTime"</span> : ISODate(<span class="string">"2016-09-13T05:29:37.302Z"</span>),</div><div class="line">	<span class="string">"maxWireVersion"</span> : 4,</div><div class="line">	<span class="string">"minWireVersion"</span> : 0,</div><div class="line">	<span class="string">"ok"</span> : 1</div><div class="line">&#125;</div><div class="line">&gt; use blogs</div><div class="line">switched to db blogs</div><div class="line">&gt; db.blog.insert(&#123;B<span class="built_in">log</span>Name:<span class="string">"ike's Blog"</span>,writer:<span class="string">"ike"</span> &#125;)</div><div class="line">WriteResult(&#123; <span class="string">"nInserted"</span> : 1 &#125;)</div></pre></td></tr></table></figure>
+<p>连接slave</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongo --port 27083</div></pre></td></tr></table></figure>
+<p>在mongo client 执行下列命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt; rs.isMaster()</div><div class="line"></div><div class="line">&gt; use blogs</div><div class="line">switched to db blogs</div><div class="line">&gt; db.blog.find()</div><div class="line">Error: error: &#123; <span class="string">"ok"</span> : 0, <span class="string">"errmsg"</span> : <span class="string">"not master and slaveOk=false"</span>, <span class="string">"code"</span> : 13435 &#125;</div></pre></td></tr></table></figure>
+<p>Error的原因是从机默认不支持读写 ,解决办法:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; rs.slaveOk()</div></pre></td></tr></table></figure>
+<p>mongoDB官方已经不建议大家使用这种主从复制的架构了,这种架构无法避免主机宕机后服务中断.</p>
+<h1 id="mongoDB副本集"><a href="#mongoDB副本集" class="headerlink" title="mongoDB副本集"></a>mongoDB副本集</h1><h2 id="副本集特点"><a href="#副本集特点" class="headerlink" title="副本集特点"></a>副本集特点</h2><p>1.副本集具有2个或者多个节点(一般最少3个)<br>2.副本集具有一个主节点,其他都是从节点<br>3.所有数据都是从主节点到从节点的.<br>4.当主节点故障,从节点会自行推举一个新的主节点<br>5.当失败节点恢复后,连接副本集后,重新作为从节点</p>
+<h2 id="创建多个节点-实例"><a href="#创建多个节点-实例" class="headerlink" title="创建多个节点(实例)"></a>创建多个节点(实例)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mongod --dbpath=/data/node1 --logpath=/data/node1<span class="built_in">log</span>/nodelog.log --port=27073   --keyFile=/data/node/mongokey  --clusterAuthMode=keyFile  --replSet=nodeset --fork</div><div class="line">mongod --dbpath=/data/node2 --logpath=/data/node2<span class="built_in">log</span>/nodelog.log --port=27075   --keyFile=/data/node/mongokey  --clusterAuthMode=keyFile  --replSet=nodeset --fork</div><div class="line">mongod --dbpath=/data/node3 --logpath=/data/node3<span class="built_in">log</span>/nodelog.log --port=27077   --keyFile=/data/node/mongokey  --clusterAuthMode=keyFile  --replSet=nodeset --fork</div></pre></td></tr></table></figure>
+<h2 id="连接其中一个实例"><a href="#连接其中一个实例" class="headerlink" title="连接其中一个实例"></a>连接其中一个实例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">   </div><div class="line">&gt; conf=&#123;_id:<span class="string">"nodeset"</span>,members:[&#123;_id:1 ,host:<span class="string">"localhost:27073"</span>&#125;]&#125;    <span class="comment">##_id:副本集名称</span></div><div class="line">&#123;</div><div class="line">	<span class="string">"_id"</span> : <span class="string">"nodeset"</span>,</div><div class="line">	<span class="string">"members"</span> : [</div><div class="line">		&#123;</div><div class="line">			<span class="string">"_id"</span> : 1,</div><div class="line">			<span class="string">"host"</span> : <span class="string">"localhost:27073"</span></div><div class="line">		&#125;</div><div class="line">	]</div><div class="line">&#125;</div><div class="line">&gt; rs.initiate(conf)    <span class="comment">##初始化副本集</span></div><div class="line">&#123; <span class="string">"ok"</span> : 1 &#125;</div><div class="line"></div><div class="line">&gt; use admin                     </div><div class="line">switched to db admin</div><div class="line"></div><div class="line">nodeset:PRIMARY&gt; db.createUser(&#123;user:<span class="string">"root"</span>,<span class="built_in">pwd</span>:<span class="string">"root"</span>,roles:[<span class="string">"root"</span>]&#125;)     <span class="comment">## PRIMARY 说明连接的是主节点,在admin下创建管理员</span></div><div class="line">nodeset:PRIMARY&gt; db.auth(<span class="string">"root"</span>,<span class="string">"root"</span>)                                     <span class="comment">##登入管理员账号</span></div><div class="line">nodeset:PRIMARY&gt; rs.add(<span class="string">"127.0.0.1:27075"</span>)     <span class="comment">##将其他两个实例添加进副本集</span></div><div class="line">nodeset:PRIMARY&gt; rs.add(<span class="string">"127.0.0.1:27077"</span>)</div><div class="line">nodeset:PRIMARY&gt; rs.status()                   <span class="comment">##副本集状态,节点查询</span></div></pre></td></tr></table></figure>
+<p>到此,拥有3个节点的副本集就创建完了 ,更多操作执行rs.help()查询</p>
+<h1 id="mongoDB分片"><a href="#mongoDB分片" class="headerlink" title="mongoDB分片"></a>mongoDB分片</h1>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -641,7 +779,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -649,7 +787,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -695,7 +833,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2016</span>
+  <span itemprop="copyrightYear">2015</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
