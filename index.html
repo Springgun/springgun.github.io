@@ -12,7 +12,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
 
-<meta name="baidu-site-verification" content="zpflUnYU99" />
+
 <meta http-equiv="Cache-Control" content="no-transform" />
 <meta http-equiv="Cache-Control" content="no-siteapp" />
 
@@ -716,8 +716,12 @@
 <p>config server </p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mongod --configsvr --port 27019  --dbpath=/data/medium_conf --logpath=/var/conf_log/mongodbconf.log --fork  --logappend --keyFile /var/key/mongodb.key  --clusterAuthMode keyFile</div><div class="line">root@medium-701747-230f8712-ee7xm:~<span class="comment"># mongo --port 27019</span></div><div class="line">configsvr&gt; use admin</div><div class="line">switched to db admin</div><div class="line">configsvr&gt; db.createUser(user:<span class="string">'root'</span>,<span class="built_in">pwd</span>:<span class="string">'root'</span>,roles:[<span class="string">"root"</span>])</div></pre></td></tr></table></figure>
 <p>mongos<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mongos --port 27021  --logpath=/var/mongosdb_log/mongos.log --fork --logappend  --configdb 10.166.224.4:27019 --keyFile /var/key/mongodb.key  --clusterAuthMode keyFile</div><div class="line">                                                                                          <span class="comment">## 使用和分片同一网段的ip</span></div></pre></td></tr></table></figure></p>
-<h2 id="Add-Shard"><a href="#Add-Shard" class="headerlink" title="Add Shard"></a>Add Shard</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">momgo --port 27021</div><div class="line"></div><div class="line">mongos&gt; use admin</div><div class="line">switched to db admin</div><div class="line">mongos&gt; db.auth(<span class="string">'root'</span>,<span class="string">'root'</span>)</div><div class="line"></div><div class="line">mongos&gt; sh.addShard(<span class="string">"rs_2/127.0.0.1:27011"</span>)   <span class="comment">##添加同一主机下的shard成员</span></div><div class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"rs_2"</span>, <span class="string">"ok"</span> : 1 &#125;</div><div class="line"></div><div class="line">mongos&gt; sh.addShard(<span class="string">"rs_1/10.166.224.7:27011"</span>)  <span class="comment">##添加10.166.224.7下的shard成员</span></div><div class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"rs_1"</span>, <span class="string">"ok"</span> : 1 &#125;</div><div class="line"></div><div class="line">mongos&gt; sh.status()   <span class="comment">## sharding status</span></div></pre></td></tr></table></figure>
-<h2 id="Enable-Sharding"><a href="#Enable-Sharding" class="headerlink" title="Enable Sharding"></a>Enable Sharding</h2>
+<h2 id="Add-Shard"><a href="#Add-Shard" class="headerlink" title="Add Shard"></a>Add Shard</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">momgo --port 27021</div><div class="line"></div><div class="line">mongos&gt; use admin</div><div class="line">switched to db admin</div><div class="line">mongos&gt; db.auth(<span class="string">'root'</span>,<span class="string">'root'</span>)</div><div class="line"></div><div class="line">mongos&gt; sh.addShard(<span class="string">"rs_2/10.166.224.4:27011"</span>)   <span class="comment">##添加同一主机下的shard成员</span></div><div class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"rs_2"</span>, <span class="string">"ok"</span> : 1 &#125;</div><div class="line"></div><div class="line">mongos&gt; sh.addShard(<span class="string">"rs_1/10.166.224.7:27011"</span>)  <span class="comment">##添加10.166.224.7下的shard成员</span></div><div class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"rs_1"</span>, <span class="string">"ok"</span> : 1 &#125;</div><div class="line"></div><div class="line">mongos&gt; sh.status()   <span class="comment">## sharding status</span></div></pre></td></tr></table></figure>
+<h2 id="Enable-Sharding"><a href="#Enable-Sharding" class="headerlink" title="Enable Sharding"></a>Enable Sharding</h2><p>测试分片集群:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mongos&gt; use <span class="built_in">test</span>  <span class="comment">##database</span></div><div class="line">mongos&gt; <span class="keyword">for</span>(i=0;i&lt;20000;i++)&#123;db.shardtest.insert(&#123;<span class="string">'url'</span>:<span class="string">'intricate-sutra.com'</span>,<span class="string">'name'</span>:<span class="string">"ike's blog"</span>,<span class="string">'i'</span>:i&#125;)&#125;;   <span class="comment">##collection:shardtest</span></div><div class="line">mongos&gt; db.shardtest.stats()   <span class="comment">##查看集合状态,发现shards内只有rs_1一个shard</span></div><div class="line"></div><div class="line"><span class="comment">##数据分片</span></div><div class="line">mongos&gt; sh.enableSharding(<span class="string">"test"</span>)  </div><div class="line">mongos&gt; sh.shardCollection(<span class="string">"test.shardtest"</span>,&#123;_id:1&#125;)</div></pre></td></tr></table></figure></p>
+<p>结束后balance会根据chunk的数量进行数据迁移,直到chunk的数量平均分配到每个shard上,如图:<br><img src="/img/balance.jpg" alt="balance"> </p>
+<h2 id="chunk和balance"><a href="#chunk和balance" class="headerlink" title="chunk和balance"></a>chunk和balance</h2><p>balancing:<br>均衡器负责数据的迁移,会周期性的检查分片是否存在不均衡,如果存在balance进程会进行chunk的迁移.<br>balance进行均衡的条件是chunk数量的多少,而不是chunk大小</p>
+<p>chunk:<br>chunkSize的大小默认是64M,可以修改chunk的大小,使数据分布更均衡<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mongos&gt; use config</div><div class="line">mongos&gt; db.settings.save(&#123;<span class="string">"_id"</span> : <span class="string">"chunksize"</span>, <span class="string">"value"</span> : NumberLong(32)&#125;)</div><div class="line">WriteResult(&#123; <span class="string">"nMatched"</span> : 1, <span class="string">"nUpserted"</span> : 0, <span class="string">"nModified"</span> : 1 &#125;)</div></pre></td></tr></table></figure></p>
+
           
         
       
@@ -814,6 +818,17 @@
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="zjinbei@163.com" target="_blank" title="email:zjinbei@163.com">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  email:zjinbei@163.com
+                </a>
+              </span>
+            
           
         </div>
 
