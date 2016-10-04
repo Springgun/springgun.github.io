@@ -1,0 +1,648 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,mysql," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="慢查询日志对sql语句进行监控首先查看mysql是否开启了日志1234567891011121314151617181920212223242526272829303132mysql&amp;gt; show variables like &apos;slow_query_log_file&apos;;  ## 日志地址+---------------------+------------------------------">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql数据库优化">
+<meta property="og:url" content="http://intricate-sutra.com/2015/10/03/mysql/index.html">
+<meta property="og:site_name" content="ike's Blog">
+<meta property="og:description" content="慢查询日志对sql语句进行监控首先查看mysql是否开启了日志1234567891011121314151617181920212223242526272829303132mysql&amp;gt; show variables like &apos;slow_query_log_file&apos;;  ## 日志地址+---------------------+------------------------------">
+<meta property="og:updated_time" content="2016-10-02T13:38:49.705Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql数据库优化">
+<meta name="twitter:description" content="慢查询日志对sql语句进行监控首先查看mysql是否开启了日志1234567891011121314151617181920212223242526272829303132mysql&amp;gt; show variables like &apos;slow_query_log_file&apos;;  ## 日志地址+---------------------+------------------------------">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://intricate-sutra.com/2015/10/03/mysql/"/>
+
+  <title> mysql数据库优化 | ike's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">ike's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                mysql数据库优化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-10-03T21:42:12+08:00" content="2015-10-03">
+              2015-10-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/10/03/mysql/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/03/mysql/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="慢查询日志对sql语句进行监控"><a href="#慢查询日志对sql语句进行监控" class="headerlink" title="慢查询日志对sql语句进行监控"></a>慢查询日志对sql语句进行监控</h1><p>首先查看mysql是否开启了日志<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">mysql&gt; show variables like <span class="string">'slow_query_log_file'</span>;  <span class="comment">## 日志地址</span></div><div class="line">+---------------------+--------------------------------+</div><div class="line">| Variable_name       | Value                          |</div><div class="line">+---------------------+--------------------------------+</div><div class="line">| slow_query_log_file | /etc/mysql/data/mysql-slow.log |</div><div class="line">+---------------------+--------------------------------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">mysql&gt; show variables like <span class="string">'slow_query_log'</span>;</div><div class="line">+----------------+-------+</div><div class="line">| Variable_name  | Value |</div><div class="line">+----------------+-------+</div><div class="line">| slow_query_log | ON    |   <span class="comment">## 开启 set global slow_query_log=on</span></div><div class="line">+----------------+-------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">mysql&gt; show variables like <span class="string">'%log'</span>    <span class="comment">## 查看变量的设置</span></div><div class="line">    -&gt; ;</div><div class="line">+--------------------------------+-------+</div><div class="line">| Variable_name                  | Value |</div><div class="line">+--------------------------------+-------+</div><div class="line">| back_log                       | 70    |</div><div class="line">| general_log                    | OFF   |</div><div class="line">| innodb_api_enable_binlog       | OFF   |</div><div class="line">| innodb_locks_unsafe_for_binlog | OFF   |</div><div class="line">| relay_log                      |       |</div><div class="line">| slow_query_log                 | ON    |</div><div class="line">| sync_binlog                    | 1     |</div><div class="line">| sync_relay_log                 | 0     |</div><div class="line">| use_xa_tmplog                  | OFF   |</div><div class="line">+--------------------------------+-------+</div><div class="line">9 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure></p>
+<p>既然是慢查询,就需要把查询时间慢的记录在日志中<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">mysql&gt; <span class="built_in">set</span> long_query_time=1;   <span class="comment">##我设置的是1秒</span></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line">mysql&gt; show variables like <span class="string">'long_query_time'</span>;</div><div class="line">+-----------------+----------+</div><div class="line">| Variable_name   | Value    |</div><div class="line">+-----------------+----------+    </div><div class="line">| long_query_time | 1.000000 |             </div><div class="line">+-----------------+----------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure></p>
+<h1 id="慢查询的分析工具-mysqldumpslow"><a href="#慢查询的分析工具-mysqldumpslow" class="headerlink" title="慢查询的分析工具-mysqldumpslow"></a>慢查询的分析工具-mysqldumpslow</h1><p>sql脚本<a href="http://downloads.mysql.com/docs/sakila-db.tar.gz" target="_blank" rel="external">http://downloads.mysql.com/docs/sakila-db.tar.gz</a> 找一条大于一秒的查询,<br>先创建一个管理员,<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP</div><div class="line">  ON sakila.*                    </div><div class="line">  TO <span class="string">'ike'</span>@<span class="string">'111.193.100.110'</span></div><div class="line">  IDENTIFIED BY <span class="string">'root'</span>;</div></pre></td></tr></table></figure></p>
+<p>找了半天没找到,算了<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"> mysqldumpslow -t 5 /etc/mysql/data/mysql-slow.log  <span class="comment">## top 5</span></div><div class="line"> </div><div class="line"> Count: 1  Time=0.01s (0s)  Lock=0.00s (0s)  Rows=725.0 (725), ike2[ike2]@[111.193.5.135]</div><div class="line">  select * from `seckill` <span class="built_in">where</span> name=<span class="string">'S'</span></div><div class="line">  LIMIT N, N</div><div class="line"></div><div class="line">Count: 1  Time=0.01s (0s)  Lock=0.00s (0s)  Rows=1000.0 (1000), ike2[ike2]@[111.193.5.135]</div><div class="line">  select * from `seckill`                         </div><div class="line">  LIMIT N, N</div><div class="line"></div><div class="line">Count: 25  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=1.0 (25), ike2[ike2]@[111.193.5.135]</div><div class="line">  select count(*) from `seckill`</div><div class="line">  LIMIT N, N</div><div class="line"></div><div class="line">Count: 2  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=5.0 (10), ike2[ike2]@[111.193.5.135]</div><div class="line">  SELECT CONCAT(customer.last_name, <span class="string">'S'</span>, customer.first_name) AS customer,</div><div class="line">  address.phone, film.title</div><div class="line">  FROM rental INNER JOIN customer ON rental.customer_id = customer.customer_id</div><div class="line">  INNER JOIN address ON customer.address_id = address.address_id</div><div class="line">  INNER JOIN inventory ON rental.inventory_id = inventory.inventory_id</div><div class="line">  INNER JOIN film ON inventory.film_id = film.film_id</div><div class="line">  WHERE rental.return_date IS NULL</div><div class="line">  AND rental_date + INTERVAL film.rental_duration DAY &lt; CURRENT_DATE()</div><div class="line">  LIMIT N</div></pre></td></tr></table></figure></p>
+<p>分析日志统计返回的结果:<br> ①count 统计了同一条sql被执行的次数;<br> ②sql 执行时间没有大于一秒的,那说明这些sql未使用索引被记录;<br> ③lock 未触发写锁;<br> ④Rows 扫描的表行数&gt;=返回的行数 ,差值越大说明效率越低;</p>
+<h1 id="explain的使用方法"><a href="#explain的使用方法" class="headerlink" title="explain的使用方法"></a>explain的使用方法</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">mysql&gt; explain SELECT CONCAT(customer.last_name, <span class="string">', '</span>, customer.first_name) AS customer,</div><div class="line">    -&gt;     address.phone, film.title</div><div class="line">    -&gt;     FROM rental INNER JOIN customer ON rental.customer_id = customer.customer_id</div><div class="line">    -&gt;     INNER JOIN address ON customer.address_id = address.address_id</div><div class="line">    -&gt;      INNER JOIN inventory ON rental.inventory_id = inventory.inventory_id</div><div class="line">    -&gt;      INNER JOIN film ON inventory.film_id = film.film_id</div><div class="line">    -&gt;      WHERE rental.return_date IS NULL</div><div class="line">    -&gt;      AND rental_date + INTERVAL film.rental_duration DAY &lt; CURRENT_DATE()</div><div class="line">    -&gt;     LIMIT 5;</div><div class="line">+----+-------------+-----------+--------+----------------------------------------+---------------------+---------+-------------------------------+------+-------------+</div><div class="line">| id | select_type | table     | <span class="built_in">type</span>   | possible_keys                          | key                 | key_len | ref                           | rows | Extra       |</div><div class="line">+----+-------------+-----------+--------+----------------------------------------+---------------------+---------+-------------------------------+------+-------------+</div><div class="line">|  1 | SIMPLE      | film      | ALL    | PRIMARY                                | NULL                | NULL    | NULL                          | 1000 | NULL        |</div><div class="line">|  1 | SIMPLE      | inventory | ref    | PRIMARY,idx_fk_film_id                 | idx_fk_film_id      | 2       | sakila.film.film_id           |    1 | Using index |</div><div class="line">|  1 | SIMPLE      | rental    | ref    | idx_fk_inventory_id,idx_fk_customer_id | idx_fk_inventory_id | 3       | sakila.inventory.inventory_id |    1 | Using <span class="built_in">where</span> |</div><div class="line">|  1 | SIMPLE      | customer  | eq_ref | PRIMARY,idx_fk_address_id              | PRIMARY             | 2       | sakila.rental.customer_id     |    1 | NULL        |</div><div class="line">|  1 | SIMPLE      | address   | eq_ref | PRIMARY                                | PRIMARY             | 2       | sakila.customer.address_id    |    1 | NULL        |</div><div class="line">+----+-------------+-----------+--------+----------------------------------------+---------------------+---------+-------------------------------+------+-------------+</div><div class="line">5 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<p>分析返回结果:<br> ① type 显示连接使用了何种类型,const&gt;eq_ref&gt;ref&gt;range&gt;index&gt;all;<br> ② possible_keys  显示可能应用到的索引;<br> ③ key 显示使用的索引;<br> ④ key_len 显示使用索引的长度,长度越短越好;<br> ⑤ rows 扫描的行数 ,数值越小越好;</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/mysql/" rel="tag">#mysql</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/23/mongoDB/" rel="prev" title="mongoDB副本集与分片">
+                mongoDB副本集与分片 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/10/03/mysql/"
+           data-title="mysql数据库优化" data-url="http://intricate-sutra.com/2015/10/03/mysql/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="ike" />
+          <p class="site-author-name" itemprop="name">ike</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="zjinbei@163.com" target="_blank" title="email:zjinbei@163.com">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  email:zjinbei@163.com
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#慢查询日志对sql语句进行监控"><span class="nav-number">1.</span> <span class="nav-text">慢查询日志对sql语句进行监控</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#慢查询的分析工具-mysqldumpslow"><span class="nav-number">2.</span> <span class="nav-text">慢查询的分析工具-mysqldumpslow</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#explain的使用方法"><span class="nav-number">3.</span> <span class="nav-text">explain的使用方法</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ike</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"intricate-sutra"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
