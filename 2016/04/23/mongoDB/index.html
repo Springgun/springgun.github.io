@@ -90,24 +90,21 @@
 
 
 
-<meta name="description" content="mongoDB主从复制主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.这里我们用一主一从实现mongodb的复制
-网易蜂巢的容器已经安装好了mongoDB,直接就可以运行mongo Client,我们要创建自己的mongod实例,首先把容器自行运行的先停止1mong">
+<meta name="description" content="mongoDB主从复制主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.这里我们用一主一从实现mongodb的复制">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mongoDB副本集与分片">
 <meta property="og:url" content="http://intricate-sutra.com/2016/04/23/mongoDB/index.html">
 <meta property="og:site_name" content="ike's Blog">
-<meta property="og:description" content="mongoDB主从复制主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.这里我们用一主一从实现mongodb的复制
-网易蜂巢的容器已经安装好了mongoDB,直接就可以运行mongo Client,我们要创建自己的mongod实例,首先把容器自行运行的先停止1mong">
+<meta property="og:description" content="mongoDB主从复制主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.这里我们用一主一从实现mongodb的复制">
 <meta property="og:image" content="http://intricate-sutra.com/img/mongo.jpg">
 <meta property="og:image" content="http://intricate-sutra.com/img/balance.jpg">
 <meta property="og:image" content="http://intricate-sutra.com/img/shard2.jpg">
 <meta property="og:image" content="http://intricate-sutra.com/img/shard1.jpg">
 <meta property="og:image" content="http://intricate-sutra.com/img/shard3.jpg">
-<meta property="og:updated_time" content="2016-09-24T03:39:29.881Z">
+<meta property="og:updated_time" content="2016-10-08T14:42:13.119Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mongoDB副本集与分片">
-<meta name="twitter:description" content="mongoDB主从复制主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.这里我们用一主一从实现mongodb的复制
-网易蜂巢的容器已经安装好了mongoDB,直接就可以运行mongo Client,我们要创建自己的mongod实例,首先把容器自行运行的先停止1mong">
+<meta name="twitter:description" content="mongoDB主从复制主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.这里我们用一主一从实现mongodb的复制">
 <meta name="twitter:image" content="http://intricate-sutra.com/img/mongo.jpg">
 
 
@@ -327,8 +324,7 @@
       
 
       
-        <h1 id="mongoDB主从复制"><a href="#mongoDB主从复制" class="headerlink" title="mongoDB主从复制"></a>mongoDB主从复制</h1><p>主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.<br>最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.<br>这里我们用一主一从实现mongodb的复制</p>
-<p>网易蜂巢的容器已经安装好了mongoDB,直接就可以运行mongo Client,我们要创建自己的mongod实例,<br>首先把容器自行运行的先停止<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --shutdown</div></pre></td></tr></table></figure></p>
+        <h1 id="mongoDB主从复制"><a href="#mongoDB主从复制" class="headerlink" title="mongoDB主从复制"></a>mongoDB主从复制</h1><p>主从复制是sql server 最常用的复制方式,这种方式很灵活.可用于备份,故障恢复,读扩展等.<br>最基本的设置方式就是建立一个主节点和一个或多个从节点,每个从节点要知道主节点的地址.<br>这里我们用一主一从实现mongodb的复制<br><a id="more"></a><br>网易蜂巢的容器已经安装好了mongoDB,直接就可以运行mongo Client,我们要创建自己的mongod实例,<br>首先把容器自行运行的先停止<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --shutdown</div></pre></td></tr></table></figure></p>
 <h2 id="创建master实例"><a href="#创建master实例" class="headerlink" title="创建master实例"></a>创建master实例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --master --port=27081 --dbpath=/data/masterdb --logpath=/data/masterlog --fork</div></pre></td></tr></table></figure>
 <h2 id="创建-slave实例"><a href="#创建-slave实例" class="headerlink" title="创建 slave实例"></a>创建 slave实例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mongod --slave  --port=27083 --dbpath=/data/slavedb --logpath=/data/slavelog   --source=27081    --fork</div></pre></td></tr></table></figure>
 <h2 id="查看mongo进程"><a href="#查看mongo进程" class="headerlink" title="查看mongo进程"></a>查看mongo进程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">root@mongodb-671984-3837ac52-ky93c:~<span class="comment"># ps -ef|grep mongod</span></div><div class="line">root       116     1  0 13:09 ?        00:00:05 mongod --master --port=27081 --dbpath=/data/masterdb --logpath=/data/masterlog --fork</div><div class="line">root       173     1  0 13:20 ?        00:00:01 mongod --slave --port=27083 --dbpath=/data/slavedb --logpath=/data/slavelog --source=27081 --fork</div><div class="line">root       279    64  0 13:24 pts/0    00:00:00 grep mongod</div></pre></td></tr></table></figure>
